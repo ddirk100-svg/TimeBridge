@@ -16,7 +16,7 @@ const SUPABASE_CONFIG = isDevelopment
     : {
         // 🌐 프로덕션: Supabase 사용
         url: 'https://iyctjxnpwnwobyhiroua.supabase.co',
-        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5Y3RqeG5wd253b2J5aGlyb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIzOTI1OTQsImV4cCI6MjA0Nzk2ODU5NH0.PJ4gfJZ1iFY5rTrNVvH97RVQVVD8Y7OwYvf47AkP_hU'
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5Y3RqeG5wd253b2J5aGlyb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4Nzc2MTksImV4cCI6MjA3OTQ1MzYxOX0.VvzSf1Py0vm1_M7JQWLZda_Vv258gxMAkRP8l0--mEs'
     };
 
 console.log(`🔧 환경: ${isDevelopment ? '로컬 개발 (localStorage)' : '프로덕션 (Supabase)'}`);
