@@ -31,3 +31,10 @@ build/
 .tmp/
 temp/
 
+# OS specific
+Thumbs.db
+Desktop.ini
+
+# Agent tools
+agent-tools/
+
