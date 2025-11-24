@@ -1430,6 +1430,9 @@ body {
     padding: var(--spacing-xl) var(--spacing-lg);
     text-align: center;
     min-height: 60vh;
+    grid-column: 1 / -1; /* 그리드 레이아웃에서 전체 열 차지 */
+    width: 100%;
+    margin: 0 auto;
 }
 
 .empty-icon {
