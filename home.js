@@ -11,8 +11,28 @@ let filters = {
 };
 
 // 페이지 로드 시 실행
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     debug('홈 페이지 로드됨');
+    
+    // 인증 초기화 (auth.js에서 이미 초기화됨)
+    await auth.init();
+    
+    // 사용자 정보 UI 업데이트
+    updateUserInfoUI();
+    
+    // 로그아웃 버튼 이벤트
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+    
+    // 로그인 버튼 이벤트
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+    }
     
     // 저장된 뷰 모드 불러오기
     const savedView = localStorage.getItem('timebridge_view_mode');
@@ -38,6 +58,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// 사용자 정보 UI 업데이트
+function updateUserInfoUI() {
+    const userInfoSection = document.getElementById('userInfoSection');
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const userEmail = document.getElementById('userEmail');
+    const loginBtn = document.getElementById('loginBtn');
+    
+    if (!userInfoSection) return;
+    
+    const currentUser = auth.getCurrentUser();
+    
+    if (currentUser) {
+        // 로그인 상태
+        userInfoSection.style.display = 'flex';
+        if (loginBtn) loginBtn.style.display = 'none';
+        
+        // 아바타 (이메일 첫 글자)
+        const initial = currentUser.email.charAt(0).toUpperCase();
+        userAvatar.textContent = initial;
+        
+        // 이름 (user_metadata에서 가져오거나 이메일 사용)
+        const displayName = currentUser.user_metadata?.name || currentUser.email.split('@')[0];
+        userName.textContent = displayName;
+        
+        // 이메일
+        userEmail.textContent = currentUser.email;
+    } else {
+        // 게스트 모드
+        userInfoSection.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'flex';
+    }
+}
+
+// 로그아웃 처리
+async function handleLogout() {
+    const confirmed = confirm('로그아웃하시겠습니까?');
+    if (!confirmed) return;
+    
+    const { error } = await auth.signOut();
+    
+    if (error) {
+        showToast('로그아웃 실패: ' + error.message);
+        return;
+    }
+    
+    showToast('로그아웃되었습니다');
+    
+    // 홈 화면 새로고침
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
 
 // 뷰 토글 설정
 function setupViewToggle() {

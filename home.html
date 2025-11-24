@@ -8,10 +8,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="app.js"></script>
+    <script src="auth.js"></script>
     <script src="home.js" defer></script>
 </head>
 <body>
     <div class="container">
+        <!-- 사용자 정보 (로그인 시 표시) -->
+        <div id="userInfoSection" class="user-info" style="display: none;">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <div class="user-details">
+                <div class="user-name" id="userName">사용자</div>
+                <div class="user-email" id="userEmail">user@example.com</div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">로그아웃</button>
+        </div>
+        
         <!-- 헤더 -->
         <header class="header">
             <div class="header-top">
@@ -42,6 +53,14 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                    <!-- 로그인 버튼 (게스트 모드일 때만 표시) -->
+                    <button class="icon-btn login-btn" id="loginBtn" title="로그인" style="display: none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
                         </svg>
                     </button>
                 </div>

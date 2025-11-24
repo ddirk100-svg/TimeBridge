@@ -21,8 +21,18 @@
 2. SQL Editor에서 다음 테이블 생성:
 
 ```sql
+-- 사용자 프로필 테이블 (선택사항)
+create table profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  name text,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- 일기 테이블 (사용자별로 분리)
 create table diaries (
   id text primary key,
+  user_id uuid references auth.users(id) on delete cascade,
   date timestamp with time zone not null,
   title text,
   content text not null,
@@ -35,14 +45,58 @@ create table diaries (
 
 -- 인덱스 생성
 create index idx_diaries_date on diaries(date desc);
+create index idx_diaries_user_id on diaries(user_id);
 
--- RLS (Row Level Security) 설정 - 모든 사용자 접근 허용
+-- RLS (Row Level Security) 활성화
+alter table profiles enable row level security;
 alter table diaries enable row level security;
 
-create policy "Enable all access for everyone"
-on diaries for all
-using (true)
-with check (true);
+-- 프로필 정책: 사용자는 자신의 프로필만 조회/수정 가능
+create policy "Users can view own profile"
+  on profiles for select
+  using (auth.uid() = id);
+
+create policy "Users can update own profile"
+  on profiles for update
+  using (auth.uid() = id);
+
+create policy "Users can insert own profile"
+  on profiles for insert
+  with check (auth.uid() = id);
+
+-- 일기 정책: 사용자는 자신의 일기만 조회/수정/삭제 가능
+create policy "Users can view own diaries"
+  on diaries for select
+  using (auth.uid() = user_id);
+
+create policy "Users can insert own diaries"
+  on diaries for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update own diaries"
+  on diaries for update
+  using (auth.uid() = user_id);
+
+create policy "Users can delete own diaries"
+  on diaries for delete
+  using (auth.uid() = user_id);
+
+-- 게스트 사용자를 위한 정책 (user_id가 NULL인 경우)
+create policy "Anyone can view guest diaries"
+  on diaries for select
+  using (user_id is null);
+
+create policy "Anyone can insert guest diaries"
+  on diaries for insert
+  with check (user_id is null);
+
+create policy "Anyone can update guest diaries"
+  on diaries for update
+  using (user_id is null);
+
+create policy "Anyone can delete guest diaries"
+  on diaries for delete
+  using (user_id is null);
 ```
 
 3. Project Settings > API에서 다음 정보 복사:

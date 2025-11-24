@@ -28,19 +28,43 @@ function initSupabase() {
     }
 }
 
-// Supabase 저장소 관리
+// Supabase 저장소 관리 (사용자 인증 반영)
 const supabaseStorage = {
-    // 모든 일기 가져오기
+    // 현재 사용자 ID 가져오기
+    getCurrentUserId: async () => {
+        if (!supabaseClient) return null;
+        
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            return user?.id || null;
+        } catch (error) {
+            console.error('사용자 정보 가져오기 실패:', error);
+            return null;
+        }
+    },
+    
+    // 모든 일기 가져오기 (현재 사용자 것만 또는 게스트)
     getAllDiaries: async () => {
         if (!supabaseClient) {
             return storage.getAllDiaries(); // localStorage fallback
         }
         
         try {
-            const { data, error } = await supabaseClient
+            const userId = await supabaseStorage.getCurrentUserId();
+            
+            let query = supabaseClient
                 .from('diaries')
                 .select('*')
                 .order('date', { ascending: false });
+            
+            // 로그인한 사용자면 자신의 일기만, 아니면 게스트 일기만
+            if (userId) {
+                query = query.eq('user_id', userId);
+            } else {
+                query = query.is('user_id', null);
+            }
+            
+            const { data, error } = await query;
             
             if (error) throw error;
             return data || [];
@@ -57,9 +81,17 @@ const supabaseStorage = {
         }
         
         try {
+            const userId = await supabaseStorage.getCurrentUserId();
+            
+            // user_id 추가 (로그인한 경우에만)
+            const diaryData = {
+                ...diary,
+                user_id: userId
+            };
+            
             const { data, error } = await supabaseClient
                 .from('diaries')
-                .upsert(diary)
+                .upsert(diaryData)
                 .select()
                 .single();
             
@@ -82,11 +114,21 @@ const supabaseStorage = {
         }
         
         try {
-            const { data, error } = await supabaseClient
+            const userId = await supabaseStorage.getCurrentUserId();
+            
+            let query = supabaseClient
                 .from('diaries')
                 .select('*')
-                .eq('id', id)
-                .single();
+                .eq('id', id);
+            
+            // 사용자 필터링 (RLS가 처리하지만 명시적으로 추가)
+            if (userId) {
+                query = query.eq('user_id', userId);
+            } else {
+                query = query.is('user_id', null);
+            }
+            
+            const { data, error } = await query.single();
             
             if (error) throw error;
             return data;
