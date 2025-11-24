@@ -10,11 +10,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// 정적 파일 제공
-app.use('/css', express.static(path.join(__dirname, 'public/css')));
-app.use('/js', express.static(path.join(__dirname, 'public/js')));
+// 정적 파일 제공 (캐시 비활성화 for 개발/배포 편의성)
+const cacheControl = (req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Expires', '0');
+    res.set('Pragma', 'no-cache');
+    next();
+};
+
+app.use('/css', cacheControl, express.static(path.join(__dirname, 'public/css')));
+app.use('/js', cacheControl, express.static(path.join(__dirname, 'public/js')));
 app.use('/assets', express.static(path.join(__dirname, 'public/assets')));
-app.use('/config', express.static(path.join(__dirname, 'config')));
+app.use('/config', cacheControl, express.static(path.join(__dirname, 'config')));
 
 // 기본 라우트 - 홈 페이지
 app.get('/', (req, res) => {
