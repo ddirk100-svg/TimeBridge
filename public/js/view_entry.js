@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (!diaryId) {
         showToast('일기를 찾을 수 없습니다');
-        navigateTo('home.html');
+        navigateTo('/');
         return;
     }
     
@@ -47,7 +47,7 @@ async function loadDiary(id) {
     
     if (!currentDiary) {
         showToast('일기를 찾을 수 없습니다');
-        navigateTo('home.html');
+        navigateTo('/');
         return;
     }
     
@@ -294,7 +294,7 @@ function setupEventListeners() {
     if (backBtn) {
         backBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            navigateTo('home.html');
+            navigateTo('/');
         });
     }
     
@@ -325,7 +325,7 @@ function setupEventListeners() {
         editBtn.addEventListener('click', (e) => {
             e.preventDefault();
             if (currentDiary) {
-                navigateTo('new_entry.html', { id: currentDiary.id });
+                navigateTo('/new-entry', { id: currentDiary.id });
             }
         });
     }
@@ -354,7 +354,7 @@ async function handleDelete() {
         showToast('일기가 삭제되었습니다');
         
         setTimeout(() => {
-            navigateTo('home.html');
+            navigateTo('/');
         }, 500);
     }
 }

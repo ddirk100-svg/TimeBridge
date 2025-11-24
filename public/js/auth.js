@@ -189,16 +189,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     await window.authReadyPromise;
     
     // 페이지별 처리
-    const currentPage = window.location.pathname.split('/').pop();
+    const currentPath = window.location.pathname;
     
     // 로그인 페이지가 아닌데 로그인하지 않은 경우
-    if (currentPage !== 'login.html' && currentPage !== '' && !auth.isAuthenticated() && supabaseClient) {
+    if (currentPath !== '/login' && currentPath !== '/' && !auth.isAuthenticated() && supabaseClient) {
         // 로그인 페이지로 리다이렉트 (선택사항)
-        // window.location.href = 'login.html';
+        // window.location.href = '/login';
     }
     
     // 로그인 페이지 로직
-    if (currentPage === 'login.html' || currentPage === '') {
+    if (currentPath === '/login') {
         setupLoginPage();
     }
 });
@@ -251,7 +251,7 @@ function setupLoginPage() {
         
         showToast('로그인 성공!');
         setTimeout(() => {
-            window.location.href = 'home.html';
+            window.location.href = '/';
         }, 1000);
     });
     
@@ -292,7 +292,7 @@ function setupLoginPage() {
         guestBtn.addEventListener('click', () => {
             showToast('게스트 모드로 시작합니다');
             setTimeout(() => {
-                window.location.href = 'home.html';
+                window.location.href = '/';
             }, 1000);
         });
     }

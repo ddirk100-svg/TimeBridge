@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         });
     }
     
@@ -179,7 +179,7 @@ function setupProfileDropdown() {
     if (viewProfileBtn) {
         viewProfileBtn.addEventListener('click', () => {
             profileDropdown.style.display = 'none';
-            window.location.href = 'profile.html';
+            window.location.href = '/profile';
         });
     }
     
@@ -187,7 +187,7 @@ function setupProfileDropdown() {
     if (loginDropdownBtn) {
         loginDropdownBtn.addEventListener('click', () => {
             profileDropdown.style.display = 'none';
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         });
     }
     
@@ -559,7 +559,7 @@ async function createDiaryCard(diary) {
     
     // 클릭 이벤트 - 상세 페이지로 이동
     article.addEventListener('click', () => {
-        navigateTo('view_entry.html', { id: diary.id });
+        navigateTo('/view-entry', { id: diary.id });
     });
     
     return article;

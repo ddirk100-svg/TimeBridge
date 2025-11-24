@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!currentUser) {
         showToast('로그인이 필요합니다');
         setTimeout(() => {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }, 1000);
         return;
     }
@@ -164,7 +164,7 @@ function setupEventListeners() {
     const backBtn = document.querySelector('.back-btn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
-            navigateTo('home.html');
+            navigateTo('/');
         });
     }
     

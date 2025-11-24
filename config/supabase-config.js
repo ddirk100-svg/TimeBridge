@@ -1,11 +1,26 @@
 // Supabase 클라이언트 설정
 // 브라우저에서 사용할 설정 파일
 
-// Supabase 프로젝트 정보 (환경 변수 또는 직접 입력)
-const SUPABASE_CONFIG = {
-    url: 'https://iyctjxnpwnwobyhiroua.supabase.co', // Supabase Project URL을 여기에 입력
-    anonKey: 'sb_publishable_2bjVEDEF55i61KCaeLR1sQ_0YCdYtpb' // Supabase Anon Key를 여기에 입력
-};
+// 환경 감지: 로컬 개발 환경인지 확인
+const isDevelopment = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.hostname === '';
+
+// 환경에 따른 Supabase 설정
+const SUPABASE_CONFIG = isDevelopment 
+    ? {
+        // 🔧 로컬 개발: Supabase 사용 안함 (localStorage만 사용)
+        url: '',
+        anonKey: ''
+    }
+    : {
+        // 🌐 프로덕션: Supabase 사용
+        url: 'https://iyctjxnpwnwobyhiroua.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5Y3RqeG5wd253b2J5aGlyb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIzOTI1OTQsImV4cCI6MjA0Nzk2ODU5NH0.PJ4gfJZ1iFY5rTrNVvH97RVQVVD8Y7OwYvf47AkP_hU'
+    };
+
+console.log(`🔧 환경: ${isDevelopment ? '로컬 개발 (localStorage)' : '프로덕션 (Supabase)'}`);
+console.log(`📍 호스트: ${window.location.hostname}`);
 
 // Supabase 클라이언트 초기화
 let supabaseClient = null;

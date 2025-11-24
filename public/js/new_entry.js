@@ -38,7 +38,7 @@ async function loadDiaryForEdit(id) {
     
     if (!diary) {
         showToast('일기를 찾을 수 없습니다');
-        navigateTo('home.html');
+        navigateTo('/');
         return;
     }
     
@@ -85,7 +85,7 @@ function setupEventListeners() {
         backBtn.addEventListener('click', (e) => {
             e.preventDefault();
             if (confirm('작성 중인 내용이 저장되지 않습니다. 나가시겠습니까?')) {
-                navigateTo('home.html');
+                navigateTo('/');
             }
         });
     }
@@ -312,7 +312,7 @@ async function saveDiary() {
     showToast(editingDiaryId ? '일기가 수정되었습니다' : '일기가 저장되었습니다');
     
     setTimeout(() => {
-        navigateTo('view_entry.html', { id: diary.id });
+        navigateTo('/view-entry', { id: diary.id });
     }, 500);
 }
 

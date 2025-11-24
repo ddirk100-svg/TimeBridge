@@ -47,6 +47,15 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// 에러 핸들링 미들웨어
+app.use((err, req, res, next) => {
+    console.error('Server Error:', err);
+    res.status(500).json({ 
+        error: 'Internal Server Error',
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
+
 // 404 처리
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'views/home.html'));
@@ -56,6 +65,7 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 TimeBridge server running on port ${PORT}`);
     console.log(`📱 Access at: http://localhost:${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`);
 });
 
 // 에러 핸들링
