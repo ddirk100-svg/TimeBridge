@@ -9,29 +9,62 @@ const auth = {
     
     // 초기화
     init: async function() {
+        console.log('🔧 Auth.init() 시작');
+        
         if (!supabaseClient) {
-            console.warn('Supabase 클라이언트가 없습니다. 게스트 모드로 작동합니다.');
-            return;
+            console.warn('⚠️ Supabase 클라이언트가 없습니다. 게스트 모드로 작동합니다.');
+            this.currentUser = null;
+            return false;
         }
         
-        // 세션 확인
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        
-        if (session) {
-            this.currentUser = session.user;
-            debug('로그인 상태:', this.currentUser.email);
-        }
-        
-        // 인증 상태 변경 감지
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            debug('Auth state changed:', event);
+        try {
+            // 세션 확인
+            console.log('🔍 Supabase 세션 확인 중...');
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
             
-            if (session) {
+            if (error) {
+                console.error('❌ 세션 확인 오류:', error);
+                this.currentUser = null;
+                return false;
+            }
+            
+            if (session && session.user) {
                 this.currentUser = session.user;
+                console.log('✅ 로그인된 사용자 발견:', this.currentUser.email);
             } else {
                 this.currentUser = null;
+                console.log('👤 로그인된 사용자 없음 (게스트 모드)');
             }
-        });
+            
+            // 인증 상태 변경 감지
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                console.log('🔄 Auth 상태 변경:', event);
+                
+                if (session && session.user) {
+                    this.currentUser = session.user;
+                    console.log('✅ 사용자 로그인:', this.currentUser.email);
+                    
+                    // UI 업데이트 이벤트 발생
+                    if (typeof updateUserInfoUI === 'function') {
+                        updateUserInfoUI();
+                    }
+                } else {
+                    this.currentUser = null;
+                    console.log('👤 사용자 로그아웃');
+                    
+                    // UI 업데이트 이벤트 발생
+                    if (typeof updateUserInfoUI === 'function') {
+                        updateUserInfoUI();
+                    }
+                }
+            });
+            
+            return true;
+        } catch (error) {
+            console.error('❌ Auth 초기화 실패:', error);
+            this.currentUser = null;
+            return false;
+        }
     },
     
     // 회원가입
@@ -119,10 +152,41 @@ const auth = {
     }
 };
 
-// 페이지 로드 시 실행
-document.addEventListener('DOMContentLoaded', async () => {
+// 전역 초기화 완료 플래그
+window.authReady = false;
+window.authReadyPromise = null;
+
+// 즉시 초기화 실행
+window.authReadyPromise = (async function() {
+    // Supabase 클라이언트가 로드될 때까지 대기
+    let attempts = 0;
+    while (typeof supabase === 'undefined' && attempts < 100) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+    }
+    
+    if (typeof supabase === 'undefined') {
+        console.error('❌ Supabase 로드 실패');
+        return false;
+    }
+    
     // 인증 초기화
     await auth.init();
+    window.authReady = true;
+    console.log('✅ Auth 초기화 완료');
+    
+    // 커스텀 이벤트 발생
+    window.dispatchEvent(new CustomEvent('authReady', { 
+        detail: { user: auth.getCurrentUser() } 
+    }));
+    
+    return true;
+})();
+
+// 페이지 로드 시 실행
+document.addEventListener('DOMContentLoaded', async () => {
+    // 인증 초기화 대기
+    await window.authReadyPromise;
     
     // 페이지별 처리
     const currentPage = window.location.pathname.split('/').pop();
@@ -145,6 +209,9 @@ function setupLoginPage() {
     const signupForm = document.getElementById('signupForm');
     const authTabs = document.querySelectorAll('.auth-tab');
     const guestBtn = document.getElementById('guestBtn');
+    
+    // 로그인 페이지가 아니면 종료
+    if (!loginForm || !signupForm) return;
     
     // 탭 전환
     authTabs.forEach(tab => {

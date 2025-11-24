@@ -37,8 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 일기 불러오기
-function loadDiary(id) {
-    currentDiary = storage.getDiaryById(id);
+async function loadDiary(id) {
+    // Supabase에서 가져오기
+    if (supabaseClient) {
+        currentDiary = await supabaseStorage.getDiaryById(id);
+    } else {
+        currentDiary = storage.getDiaryById(id);
+    }
     
     if (!currentDiary) {
         showToast('일기를 찾을 수 없습니다');
@@ -179,7 +184,8 @@ async function renderCardContent(date) {
     // 타이틀
     const entryTitle = document.querySelector('.entry-title');
     if (entryTitle) {
-        entryTitle.textContent = currentDiary.title || getFirstLine(currentDiary.content);
+        const content = currentDiary.text || currentDiary.content || '';
+        entryTitle.textContent = currentDiary.title || getFirstLine(content);
     }
     
     // 날씨 - API에서 가져오기
@@ -212,7 +218,7 @@ async function renderCardContent(date) {
     // 일기 내용
     const entryText = document.querySelector('.entry-text');
     if (entryText) {
-        entryText.textContent = currentDiary.content;
+        entryText.textContent = currentDiary.text || currentDiary.content || '';
     }
     
     // 작성 시간
@@ -332,13 +338,19 @@ function setupEventListeners() {
 }
 
 // 일기 삭제
-function handleDelete() {
+async function handleDelete() {
     if (!currentDiary) return;
     
     const confirmMessage = '정말로 이 일기를 삭제하시겠습니까?\n삭제된 일기는 복구할 수 없습니다.';
     
     if (confirm(confirmMessage)) {
-        storage.deleteDiary(currentDiary.id);
+        // Supabase에서 삭제
+        if (supabaseClient) {
+            await supabaseStorage.deleteDiary(currentDiary.id);
+        } else {
+            storage.deleteDiary(currentDiary.id);
+        }
+        
         showToast('일기가 삭제되었습니다');
         
         setTimeout(() => {

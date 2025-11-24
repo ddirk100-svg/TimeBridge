@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 - TimeBridge</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+    <script src="auth.js"></script>
+    <script src="profile.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header-simple">
+            <button class="back-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <h2 class="page-title">프로필</h2>
+            <div style="width: 24px;"></div>
+        </header>
+
+        <!-- 프로필 내용 -->
+        <main class="profile-main">
+            <!-- 프로필 카드 -->
+            <section class="profile-card">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar-large" id="profileAvatarLarge">
+                        <span class="profile-avatar-text" id="profileAvatarText">U</span>
+                        <img class="profile-avatar-img" id="profileAvatarImg" style="display: none;" src="" alt="프로필 사진">
+                    </div>
+                    <button class="avatar-upload-btn" id="avatarUploadBtn" title="프로필 사진 변경">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </button>
+                    <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
+                </div>
+                <h2 class="profile-name" id="profileName">사용자</h2>
+                <p class="profile-email" id="profileEmail">user@example.com</p>
+            </section>
+
+            <!-- 통계 섹션 -->
+            <section class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalDiaries">0</div>
+                    <div class="stat-label">총 일기</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-value" id="thisMonthDiaries">0</div>
+                    <div class="stat-label">이번 달</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalImages">0</div>
+                    <div class="stat-label">사진</div>
+                </div>
+            </section>
+
+            <!-- 설정 메뉴 -->
+            <section class="profile-settings">
+                <h3 class="settings-title">설정</h3>
+                
+                <button class="setting-item" id="editProfileBtn">
+                    <div class="setting-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-label">프로필 수정</div>
+                        <div class="setting-desc">이름, 이메일 변경</div>
+                    </div>
+                    <div class="setting-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="setting-item" id="changePasswordBtn">
+                    <div class="setting-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-label">비밀번호 변경</div>
+                        <div class="setting-desc">보안을 위해 주기적으로 변경하세요</div>
+                    </div>
+                    <div class="setting-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="setting-item" id="dataExportBtn">
+                    <div class="setting-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-label">데이터 내보내기</div>
+                        <div class="setting-desc">일기 데이터 백업</div>
+                    </div>
+                    <div class="setting-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </button>
+            </section>
+
+            <!-- 로그아웃 버튼 -->
+            <section class="profile-actions">
+                <button class="logout-btn-full" id="logoutBtnFull">로그아웃</button>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
+

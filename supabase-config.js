@@ -12,7 +12,12 @@ let supabaseClient = null;
 
 function initSupabase() {
     if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
-        console.warn('Supabase 설정이 없습니다. localStorage를 사용합니다.');
+        console.warn('⚠️ Supabase 설정이 없습니다. localStorage를 사용합니다.');
+        return null;
+    }
+    
+    if (typeof supabase === 'undefined') {
+        console.error('❌ Supabase 라이브러리가 로드되지 않았습니다.');
         return null;
     }
     
@@ -21,12 +26,17 @@ function initSupabase() {
             SUPABASE_CONFIG.url,
             SUPABASE_CONFIG.anonKey
         );
+        console.log('✅ Supabase 클라이언트 초기화 완료');
         return supabaseClient;
     } catch (error) {
-        console.error('Supabase 초기화 실패:', error);
+        console.error('❌ Supabase 초기화 실패:', error);
         return null;
     }
 }
+
+// 즉시 초기화 실행!
+console.log('🚀 Supabase 초기화 시작...');
+supabaseClient = initSupabase();
 
 // Supabase 저장소 관리 (사용자 인증 반영)
 const supabaseStorage = {
@@ -52,6 +62,8 @@ const supabaseStorage = {
         try {
             const userId = await supabaseStorage.getCurrentUserId();
             
+            debug('현재 사용자 ID:', userId);
+            
             let query = supabaseClient
                 .from('diaries')
                 .select('*')
@@ -67,7 +79,16 @@ const supabaseStorage = {
             const { data, error } = await query;
             
             if (error) throw error;
-            return data || [];
+            
+            debug('Supabase에서 가져온 일기:', data);
+            
+            // 데이터 변환 (content -> text)
+            const transformedData = (data || []).map(diary => ({
+                ...diary,
+                text: diary.content || diary.text // content를 text로 매핑
+            }));
+            
+            return transformedData;
         } catch (error) {
             console.error('일기 가져오기 실패:', error);
             return storage.getAllDiaries();
@@ -83,11 +104,21 @@ const supabaseStorage = {
         try {
             const userId = await supabaseStorage.getCurrentUserId();
             
-            // user_id 추가 (로그인한 경우에만)
+            debug('일기 저장 시도 - 사용자 ID:', userId);
+            
+            // user_id 추가 및 필드명 변환 (text -> content)
             const diaryData = {
-                ...diary,
-                user_id: userId
+                id: diary.id,
+                user_id: userId,
+                date: diary.date,
+                title: diary.title,
+                content: diary.text || diary.content, // text를 content로 변환
+                images: diary.images,
+                mood: diary.mood,
+                weather: diary.weather
             };
+            
+            debug('Supabase에 저장할 데이터:', diaryData);
             
             const { data, error } = await supabaseClient
                 .from('diaries')
@@ -97,12 +128,15 @@ const supabaseStorage = {
             
             if (error) throw error;
             
+            debug('Supabase 저장 성공:', data);
+            
             // localStorage에도 백업
             storage.saveDiary(diary);
             
             return data;
         } catch (error) {
             console.error('일기 저장 실패:', error);
+            showToast('일기 저장 실패: ' + error.message);
             return storage.saveDiary(diary);
         }
     },
@@ -131,6 +165,15 @@ const supabaseStorage = {
             const { data, error } = await query.single();
             
             if (error) throw error;
+            
+            // 데이터 변환 (content -> text)
+            if (data) {
+                return {
+                    ...data,
+                    text: data.content || data.text
+                };
+            }
+            
             return data;
         } catch (error) {
             console.error('일기 가져오기 실패:', error);
@@ -160,11 +203,3 @@ const supabaseStorage = {
         }
     }
 };
-
-// 페이지 로드 시 Supabase 초기화
-if (typeof window !== 'undefined') {
-    window.addEventListener('DOMContentLoaded', () => {
-        initSupabase();
-    });
-}
-

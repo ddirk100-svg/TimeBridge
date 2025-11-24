@@ -26,8 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 수정할 일기 불러오기
-function loadDiaryForEdit(id) {
-    const diary = storage.getDiaryById(id);
+async function loadDiaryForEdit(id) {
+    let diary;
+    
+    // Supabase에서 가져오기
+    if (supabaseClient) {
+        diary = await supabaseStorage.getDiaryById(id);
+    } else {
+        diary = storage.getDiaryById(id);
+    }
     
     if (!diary) {
         showToast('일기를 찾을 수 없습니다');
@@ -53,10 +60,10 @@ function loadDiaryForEdit(id) {
         titleInput.value = diary.title || '';
     }
     
-    // 텍스트 설정
+    // 텍스트 설정 (text 또는 content)
     const textarea = document.querySelector('.diary-textarea');
     if (textarea) {
-        textarea.value = diary.content;
+        textarea.value = diary.text || diary.content || '';
     }
     
     // 이미지 설정
@@ -251,7 +258,7 @@ function highlightSelectedMood() {
 }
 
 // 일기 저장
-function saveDiary() {
+async function saveDiary() {
     const titleInput = document.querySelector('.diary-title-input');
     const textarea = document.querySelector('.diary-textarea');
     const title = titleInput ? titleInput.value.trim() : '';
@@ -269,7 +276,8 @@ function saveDiary() {
         id: editingDiaryId || undefined,
         date: selectedDate.toISOString(),
         title: title,
-        content: content,
+        text: content, // text 필드 사용
+        content: content, // content 필드도 유지 (호환성)
         images: uploadedImages.filter(img => img !== null && img !== undefined),
         mood: selectedMood,
         weather: null // 나중에 날씨 선택 기능 추가
@@ -277,16 +285,26 @@ function saveDiary() {
     
     // 수정 모드일 경우 기존 생성일 유지
     if (editingDiaryId) {
-        const existingDiary = storage.getDiaryById(editingDiaryId);
+        let existingDiary;
+        if (supabaseClient) {
+            existingDiary = await supabaseStorage.getDiaryById(editingDiaryId);
+        } else {
+            existingDiary = storage.getDiaryById(editingDiaryId);
+        }
+        
         if (existingDiary) {
-            diaryData.createdAt = existingDiary.createdAt;
+            diaryData.createdAt = existingDiary.createdAt || existingDiary.created_at;
         }
     }
     
     const diary = createDiary(diaryData);
     
-    // 저장
-    storage.saveDiary(diary);
+    // Supabase에 저장
+    if (supabaseClient) {
+        await supabaseStorage.saveDiary(diary);
+    } else {
+        storage.saveDiary(diary);
+    }
     
     debug('일기 저장됨:', diary);
     

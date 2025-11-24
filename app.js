@@ -5,6 +5,43 @@
 // 로컬 스토리지 키
 const STORAGE_KEY = 'timebridge_diaries';
 
+// ========================================
+// 게스트 닉네임 생성
+// ========================================
+
+function generateGuestNickname() {
+    const adjectives = [
+        '행복한', '즐거운', '신나는', '차분한', '활기찬',
+        '조용한', '명랑한', '귀여운', '용감한', '똑똑한',
+        '친절한', '재미있는', '멋진', '훌륭한', '사랑스러운',
+        '반짝이는', '따뜻한', '시원한', '부지런한', '느긋한',
+        '혼란스런', '당황한', '어리둥절한', '신비로운', '환상적인'
+    ];
+    
+    const nouns = [
+        '무지', '토끼', '고양이', '판다', '코알라',
+        '펭귄', '여우', '사슴', '다람쥐', '햄스터',
+        '병아리', '강아지', '곰돌이', '물고기', '나비',
+        '별', '구름', '바람', '햇살', '달빛',
+        '커피', '케이크', '쿠키', '마카롱', '도넛'
+    ];
+    
+    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+    
+    return randomAdj + randomNoun;
+}
+
+// 게스트 닉네임 가져오기 또는 생성
+function getGuestNickname() {
+    let nickname = localStorage.getItem('guest_nickname');
+    if (!nickname) {
+        nickname = generateGuestNickname();
+        localStorage.setItem('guest_nickname', nickname);
+    }
+    return nickname;
+}
+
 // 날짜 포맷 함수
 const formatDate = {
     // "2024. 11. 23. 토요일" 형식

@@ -198,12 +198,10 @@ body {
 
 /* 상단 바 (view_entry용) - 오버레이 */
 .top-bar-overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 100%;
-    width: 100%;
+    left: 0;
+    right: 0;
     background: transparent;
     padding: var(--spacing-md) var(--spacing-lg);
     display: flex;
@@ -1090,21 +1088,29 @@ body {
 .entry-view-card {
     background: var(--color-card-bg);
     min-height: 100vh;
+    padding: 0;
+    margin: 0;
 }
 
 /* 이미지 섹션 - 카드 스타일 */
 .view-image-section-card {
     width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     background: var(--color-card-bg);
+    position: relative;
 }
 
 .view-image-section-card .diary-swiper {
+    width: 100%;
     height: 400px;
     overflow: hidden;
 }
 
 .view-image-section-card .diary-image {
+    width: 100%;
     height: 400px;
+    object-fit: cover;
 }
 
 /* 카드 컨텐츠 */
@@ -1649,6 +1655,18 @@ body {
         padding-right: var(--spacing-xl);
     }
     
+    /* 이미지 섹션을 container 너비에 맞춤 */
+    .view-image-section-card {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    .view-image-section-card .diary-swiper,
+    .view-image-section-card .diary-image {
+        width: 100%;
+    }
+    
     .app-title {
         font-size: 32px;
     }
@@ -1736,10 +1754,15 @@ body {
     }
     
     /* 일기 작성/상세 페이지 */
-    .entry-form,
-    .entry-view-card {
+    .entry-form {
         max-width: 700px;
         margin: 0 auto;
+    }
+    
+    .entry-view-card {
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
     }
     
     .diary-swiper {
@@ -1751,7 +1774,9 @@ body {
     }
     
     .view-image-section-card .diary-image {
+        width: 100%;
         height: 500px;
+        object-fit: cover;
     }
     
     /* 더보기 메뉴 위치 조정 */
@@ -1771,9 +1796,25 @@ body {
         grid-template-columns: repeat(3, 1fr);
     }
     
-    .entry-form,
-    .entry-view-card {
+    .entry-form {
         max-width: 800px;
+    }
+    
+    .entry-view-card {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    /* 이미지 섹션을 container 너비에 맞춤 */
+    .view-image-section-card {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    .view-image-section-card .diary-swiper,
+    .view-image-section-card .diary-image {
+        width: 100%;
     }
     
     .diary-swiper {
@@ -1785,7 +1826,9 @@ body {
     }
     
     .view-image-section-card .diary-image {
+        width: 100%;
         height: 600px;
+        object-fit: cover;
     }
     
     .more-menu {
@@ -2071,5 +2114,392 @@ body {
     background: var(--color-delete);
     color: white;
     border-color: var(--color-delete);
+}
+
+/* 헤더의 로그아웃 아이콘 버튼 */
+.logout-btn-icon {
+    color: var(--color-delete);
+}
+
+.logout-btn-icon:hover {
+    background: rgba(230, 126, 126, 0.1);
+}
+
+/* 로그인 버튼 (텍스트형) */
+.login-button {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-button:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(139, 127, 217, 0.3);
+}
+
+/* 프로필 메뉴 컨테이너 */
+.profile-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* 프로필 아바타 버튼 */
+.profile-avatar-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar-btn:hover {
+    transform: scale(1.05);
+}
+
+/* 아바타 원형 */
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.avatar-circle:hover {
+    box-shadow: 0 4px 12px rgba(139, 127, 217, 0.3);
+}
+
+/* 아바타 이미지 (나중에 사용) */
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 아바타 SVG 아이콘 */
+.avatar-circle svg {
+    opacity: 0.9;
+}
+
+/* 프로필 드롭다운 */
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--color-card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 200px;
+    padding: var(--spacing-sm);
+    z-index: 1000;
+}
+
+/* 드롭다운 헤더 (사용자 정보) */
+.profile-dropdown-header {
+    padding: var(--spacing-sm);
+    text-align: left;
+}
+
+.dropdown-user-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+}
+
+.dropdown-user-email {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 드롭다운 구분선 */
+.profile-dropdown-divider {
+    height: 1px;
+    background: var(--color-border);
+    margin: var(--spacing-xs) 0;
+}
+
+.profile-dropdown-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    text-align: left;
+}
+
+.profile-dropdown-item svg {
+    flex-shrink: 0;
+}
+
+.profile-dropdown-item:hover {
+    background: var(--color-background);
+}
+
+.profile-dropdown-item.logout-item {
+    color: var(--color-delete);
+}
+
+.profile-dropdown-item.logout-item:hover {
+    background: rgba(230, 126, 126, 0.1);
+}
+
+/* 로그인 버튼 */
+.login-btn {
+    color: var(--color-primary);
+}
+
+.login-btn:hover {
+    background: rgba(139, 127, 217, 0.1);
+}
+
+/* ========================================
+   프로필 페이지 스타일
+   ======================================== */
+
+.profile-main {
+    padding: var(--spacing-lg);
+}
+
+.profile-card {
+    background: var(--color-card-bg);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 프로필 아바타 래퍼 */
+.profile-avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto var(--spacing-md);
+}
+
+.profile-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 아바타 텍스트 */
+.profile-avatar-text {
+    font-weight: 700;
+    font-size: 48px;
+    z-index: 1;
+}
+
+/* 아바타 이미지 */
+.profile-avatar-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+}
+
+/* 아바타 업로드 버튼 */
+.avatar-upload-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-card-bg);
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-upload-btn:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.profile-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.profile-email {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+/* 통계 섹션 */
+.profile-stats {
+    background: var(--color-card-bg);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--color-border);
+}
+
+/* 설정 메뉴 */
+.profile-settings {
+    background: var(--color-card-bg);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.settings-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-md);
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item:hover {
+    background: var(--color-background);
+}
+
+.setting-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--color-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+}
+
+.setting-content {
+    flex: 1;
+}
+
+.setting-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+}
+
+.setting-desc {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.setting-arrow {
+    color: var(--color-text-light);
+}
+
+/* 프로필 액션 */
+.profile-actions {
+    padding: 0 var(--spacing-lg);
+}
+
+.logout-btn-full {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: transparent;
+    border: 2px solid var(--color-delete);
+    border-radius: var(--radius-md);
+    color: var(--color-delete);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn-full:hover {
+    background: var(--color-delete);
+    color: white;
 }
 

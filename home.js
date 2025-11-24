@@ -12,19 +12,20 @@ let filters = {
 
 // 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', async () => {
-    debug('홈 페이지 로드됨');
+    console.log('📱 홈 페이지 로드됨');
     
-    // 인증 초기화 (auth.js에서 이미 초기화됨)
-    await auth.init();
+    // authReadyPromise가 완료될 때까지 대기
+    if (window.authReadyPromise) {
+        const success = await window.authReadyPromise;
+        if (!success) {
+            console.error('❌ Auth 초기화 실패');
+        }
+    } else {
+        console.warn('⚠️ authReadyPromise가 없습니다');
+    }
     
     // 사용자 정보 UI 업데이트
     updateUserInfoUI();
-    
-    // 로그아웃 버튼 이벤트
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
     
     // 로그인 버튼 이벤트
     const loginBtn = document.getElementById('loginBtn');
@@ -33,6 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = 'login.html';
         });
     }
+    
+    // 프로필 드롭다운 설정
+    setupProfileDropdown();
     
     // 저장된 뷰 모드 불러오기
     const savedView = localStorage.getItem('timebridge_view_mode');
@@ -48,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupViewToggle();
     
     // 일기 목록 렌더링
-    renderDiaries();
+    await renderDiaries();
     
     // 검색 버튼 이벤트 (향후 확장 가능)
     const searchBtn = document.querySelector('.search-btn');
@@ -61,36 +65,146 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // 사용자 정보 UI 업데이트
 function updateUserInfoUI() {
-    const userInfoSection = document.getElementById('userInfoSection');
-    const userAvatar = document.getElementById('userAvatar');
-    const userName = document.getElementById('userName');
-    const userEmail = document.getElementById('userEmail');
-    const loginBtn = document.getElementById('loginBtn');
+    console.log('🔄 updateUserInfoUI 호출됨');
     
-    if (!userInfoSection) return;
+    const loginBtn = document.getElementById('loginBtn');
+    const profileMenuContainer = document.getElementById('profileMenuContainer');
+    const headerAvatar = document.getElementById('headerAvatar');
+    
+    console.log('🔍 버튼 요소 확인:', {
+        loginBtn: !!loginBtn,
+        profileMenuContainer: !!profileMenuContainer,
+        headerAvatar: !!headerAvatar
+    });
+    
+    if (!loginBtn || !profileMenuContainer || !headerAvatar) {
+        console.error('❌ 필수 버튼 요소가 없습니다');
+        return;
+    }
+    
+    if (!auth || typeof auth.getCurrentUser !== 'function') {
+        console.error('❌ Auth 객체가 초기화되지 않았습니다');
+        return;
+    }
     
     const currentUser = auth.getCurrentUser();
+    console.log('👤 현재 사용자:', currentUser ? currentUser.email : 'null');
+    
+    // 항상 프로필 메뉴 표시 (로그인/게스트 모두)
+    loginBtn.style.display = 'none';
+    profileMenuContainer.style.display = 'block';
     
     if (currentUser) {
         // 로그인 상태
-        userInfoSection.style.display = 'flex';
-        if (loginBtn) loginBtn.style.display = 'none';
-        
-        // 아바타 (이메일 첫 글자)
-        const initial = currentUser.email.charAt(0).toUpperCase();
-        userAvatar.textContent = initial;
-        
-        // 이름 (user_metadata에서 가져오거나 이메일 사용)
         const displayName = currentUser.user_metadata?.name || currentUser.email.split('@')[0];
-        userName.textContent = displayName;
+        const profilePicture = currentUser.user_metadata?.avatar_url || localStorage.getItem('profile_picture');
         
-        // 이메일
-        userEmail.textContent = currentUser.email;
+        if (profilePicture) {
+            // 프로필 사진이 있으면 이미지 표시
+            headerAvatar.innerHTML = `<img src="${profilePicture}" alt="프로필" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            headerAvatar.style.background = 'transparent';
+        } else {
+            // 없으면 첫 글자
+            const initial = displayName.charAt(0).toUpperCase();
+            headerAvatar.innerHTML = initial;
+            headerAvatar.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))';
+        }
+        
+        // 드롭다운 정보 업데이트
+        updateDropdownInfo(displayName, currentUser.email, true);
+        
+        console.log('✅ 로그인 상태 UI 적용:', {
+            user: currentUser.email,
+            hasProfilePic: !!profilePicture
+        });
     } else {
-        // 게스트 모드
-        userInfoSection.style.display = 'none';
-        if (loginBtn) loginBtn.style.display = 'flex';
+        // 게스트 모드: 랜덤 닉네임 첫 글자
+        const guestNickname = getGuestNickname();
+        const initial = guestNickname.charAt(0);
+        headerAvatar.innerHTML = initial;
+        headerAvatar.style.background = 'linear-gradient(135deg, #95a5a6, #7f8c8d)';
+        
+        // 드롭다운 정보 업데이트
+        updateDropdownInfo(guestNickname, '게스트 모드', false);
+        
+        console.log('👤 게스트 모드 UI 적용:', {
+            nickname: guestNickname,
+            initial: initial
+        });
     }
+}
+
+// 드롭다운 정보 업데이트
+function updateDropdownInfo(name, email, isLoggedIn) {
+    const dropdownUserName = document.getElementById('dropdownUserName');
+    const dropdownUserEmail = document.getElementById('dropdownUserEmail');
+    const viewProfileBtn = document.getElementById('viewProfileBtn');
+    const loginDropdownBtn = document.getElementById('loginDropdownBtn');
+    const logoutDropdownBtn = document.getElementById('logoutDropdownBtn');
+    
+    if (dropdownUserName) dropdownUserName.textContent = name;
+    if (dropdownUserEmail) dropdownUserEmail.textContent = email;
+    
+    if (isLoggedIn) {
+        // 로그인 상태: 프로필 보기 + 로그아웃
+        if (viewProfileBtn) viewProfileBtn.style.display = 'flex';
+        if (loginDropdownBtn) loginDropdownBtn.style.display = 'none';
+        if (logoutDropdownBtn) logoutDropdownBtn.style.display = 'flex';
+    } else {
+        // 게스트 모드: 로그인만
+        if (viewProfileBtn) viewProfileBtn.style.display = 'none';
+        if (loginDropdownBtn) loginDropdownBtn.style.display = 'flex';
+        if (logoutDropdownBtn) logoutDropdownBtn.style.display = 'none';
+    }
+}
+
+// 프로필 드롭다운 설정
+function setupProfileDropdown() {
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const viewProfileBtn = document.getElementById('viewProfileBtn');
+    const loginDropdownBtn = document.getElementById('loginDropdownBtn');
+    const logoutDropdownBtn = document.getElementById('logoutDropdownBtn');
+    
+    if (!profileBtn || !profileDropdown) return;
+    
+    // 프로필 버튼 클릭 - 드롭다운 토글
+    profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = profileDropdown.style.display === 'block';
+        profileDropdown.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    // 프로필 보기 버튼
+    if (viewProfileBtn) {
+        viewProfileBtn.addEventListener('click', () => {
+            profileDropdown.style.display = 'none';
+            window.location.href = 'profile.html';
+        });
+    }
+    
+    // 로그인 버튼 (게스트 모드)
+    if (loginDropdownBtn) {
+        loginDropdownBtn.addEventListener('click', () => {
+            profileDropdown.style.display = 'none';
+            window.location.href = 'login.html';
+        });
+    }
+    
+    // 로그아웃 버튼
+    if (logoutDropdownBtn) {
+        logoutDropdownBtn.addEventListener('click', () => {
+            profileDropdown.style.display = 'none';
+            handleLogout();
+        });
+    }
+    
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+            profileDropdown.style.display = 'none';
+        }
+    });
 }
 
 // 로그아웃 처리
@@ -285,12 +399,27 @@ async function renderDiaries() {
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
     
-    // 모든 일기 가져오기
+    // Supabase에서 일기 가져오기 (사용자별로 필터링됨)
     let diaries;
-    if (filters.year === 'all') {
-        diaries = storage.getSortedDiaries();
+    
+    if (supabaseClient) {
+        // Supabase 사용
+        diaries = await supabaseStorage.getAllDiaries();
+        
+        // 연도 필터 적용 (로컬에서)
+        if (filters.year !== 'all') {
+            diaries = diaries.filter(diary => {
+                const year = new Date(diary.date).getFullYear();
+                return year === parseInt(filters.year);
+            });
+        }
     } else {
-        diaries = storage.getDiariesByYear(filters.year);
+        // localStorage fallback
+        if (filters.year === 'all') {
+            diaries = storage.getSortedDiaries();
+        } else {
+            diaries = storage.getDiariesByYear(filters.year);
+        }
     }
     
     // 기온 필터 적용

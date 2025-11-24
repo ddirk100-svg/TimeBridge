@@ -4,6 +4,8 @@
 
 ## ✨ 주요 기능
 
+- 🔐 **회원가입/로그인 시스템** (Supabase Auth)
+- 👤 **사용자별 데이터 분리** (RLS 보안)
 - 📝 일기 작성, 수정, 삭제 (CRUD)
 - 📷 이미지 업로드 (최대 3장)
 - 🌤️ 날씨 정보 자동 저장 (Open-Meteo API)
@@ -12,13 +14,16 @@
 - 📱 반응형 디자인 (모바일/태블릿/데스크톱)
 - 🎨 인스타그램 스타일 UI
 - 💾 Supabase 백엔드 + localStorage fallback
+- 🎮 **게스트 모드** 지원
 
 ## 🚀 배포 방법
 
 ### 1. Supabase 설정
 
 1. [Supabase](https://supabase.com)에 가입하고 새 프로젝트 생성
-2. SQL Editor에서 다음 테이블 생성:
+2. **Authentication 활성화**: Settings → Authentication → Providers → **Email** 활성화
+3. (**선택**) 이메일 확인 비활성화: Settings → Authentication → Email Auth → **Confirm email** 끄기
+4. SQL Editor에서 다음 테이블 생성:
 
 ```sql
 -- 사용자 프로필 테이블 (선택사항)
@@ -146,21 +151,58 @@ HTML 파일들에서 Supabase CDN을 통해 직접 설정:
 
 ## 📁 프로젝트 구조
 
+### 현재 구조 (v1.0)
 ```
 TimeBridge/
-├── home.html              # 홈 페이지 (일기 목록)
-├── new_entry.html         # 일기 작성/수정
-├── view_entry.html        # 일기 상세 보기
-├── style.css              # 스타일시트
-├── app.js                 # 공통 유틸리티
-├── home.js                # 홈 페이지 로직
-├── new_entry.js           # 작성 페이지 로직
-├── view_entry.js          # 상세 페이지 로직
-├── supabase-config.js     # Supabase 설정
+├── *.html                 # HTML 페이지들 (루트)
+├── *.js                   # JavaScript 파일들 (루트)
+├── *.css                  # 스타일시트 (루트)
 ├── server.js              # Express 서버
 ├── package.json           # 의존성 관리
 └── README.md              # 문서
 ```
+
+### 향후 구조 (v2.0 계획)
+```
+TimeBridge/
+├── public/                # 정적 파일
+│   ├── css/
+│   │   ├── style.css      # 메인 스타일
+│   │   ├── auth.css       # 인증 관련 스타일
+│   │   └── components/    # 컴포넌트별 스타일
+│   ├── js/
+│   │   ├── core/          # 핵심 로직
+│   │   │   ├── app.js
+│   │   │   ├── auth.js
+│   │   │   └── supabase-config.js
+│   │   ├── pages/         # 페이지별 로직
+│   │   │   ├── home.js
+│   │   │   ├── new_entry.js
+│   │   │   ├── view_entry.js
+│   │   │   └── profile.js
+│   │   └── utils/         # 유틸리티
+│   │       ├── date.js
+│   │       ├── weather.js
+│   │       └── storage.js
+│   └── assets/            # 이미지, 폰트 등
+├── pages/                 # HTML 페이지
+│   ├── index.html
+│   ├── login.html
+│   ├── home.html
+│   ├── new_entry.html
+│   ├── view_entry.html
+│   └── profile.html
+├── server.js              # Express 서버
+├── package.json           # 의존성 관리
+└── README.md              # 문서
+```
+
+### 주요 파일 설명
+- **auth.js**: 🔐 Supabase 인증 관리 (로그인, 로그아웃, 세션)
+- **supabase-config.js**: ☁️ Supabase 클라이언트 초기화 및 데이터 CRUD
+- **app.js**: 🛠️ 공통 유틸리티 (날짜 포맷, 토스트, localStorage)
+- **home.js**: 🏠 홈 페이지 (일기 목록, 필터, 뷰 전환)
+- **profile.js**: 👤 프로필 페이지 (통계, 설정, 데이터 백업)
 
 ## 🛠️ 기술 스택
 
@@ -187,6 +229,65 @@ TimeBridge/
 - 미니멀하고 감성적인 UI
 - 카드 기반 레이아웃
 - 부드러운 애니메이션
+
+## 🧪 테스트 및 디버깅
+
+### 로컬 테스트
+```bash
+npm install
+npm start
+```
+브라우저에서 `http://localhost:3000` 접속
+
+### 회원가입/로그인 테스트
+1. **브라우저 콘솔 열기** (F12) - 디버깅 로그 확인
+2. `login.html`에서 회원가입
+3. 이메일/비밀번호 입력 (Supabase 설정에 따라 이메일 확인 필요)
+4. 로그인 후 콘솔에서 다음 확인:
+   ```
+   ✅ Auth 초기화 완료
+   ✅ 로그인된 사용자 발견: your-email@example.com
+   ✅ 로그인 상태 UI 적용
+   ```
+5. `home.html` 우측 상단에 `[로그아웃]` + `[👤프로필]` 버튼 확인
+6. 일기 작성 후 Supabase 대시보드에서 데이터 확인
+7. 다른 계정으로 로그인하면 다른 데이터만 보이는지 확인
+
+### 게스트 모드 테스트
+1. `login.html`에서 "게스트로 시작하기" 클릭
+2. 콘솔에서 다음 확인:
+   ```
+   👤 로그인된 사용자 없음 (게스트 모드)
+   👤 게스트 모드 UI 적용
+   ```
+3. 로그인 없이 일기 작성/조회 가능 (localStorage 사용)
+4. `home.html` 우측 상단에 `[로그인]` 버튼만 표시 확인
+
+### 문제 해결 (Troubleshooting)
+
+#### 로그인 후에도 로그인 버튼이 표시되는 경우
+1. **브라우저 콘솔 확인**:
+   - `❌` 표시가 있는지 확인
+   - `Auth 초기화 완료` 메시지가 있는지 확인
+   - `현재 사용자: null` 인지 확인
+
+2. **Supabase 설정 확인**:
+   - `supabase-config.js`에 올바른 URL과 Anon Key가 입력되었는지 확인
+   - Supabase 대시보드에서 Email Auth가 활성화되었는지 확인
+
+3. **캐시 삭제**:
+   - Ctrl + Shift + Delete → 캐시 삭제
+   - 시크릿 모드로 테스트
+
+4. **localStorage 확인**:
+   - 콘솔에서 `localStorage.clear()` 실행
+   - 페이지 새로고침
+
+### 주의사항
+- **데이터베이스 스키마**: Supabase에서 SQL 쿼리를 먼저 실행해야 합니다
+- **RLS 정책**: Row Level Security가 활성화되어 있어야 사용자별 데이터 분리가 작동합니다
+- **Email Auth**: Supabase에서 Email Provider를 활성화해야 합니다
+- **콘솔 로그**: 문제 발생 시 브라우저 콘솔의 로그를 확인하세요
 
 ## 📝 라이선스
 
