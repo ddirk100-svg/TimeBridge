@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새 일기 작성 - TimeBridge</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+    <script src="new_entry.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header-simple">
+            <button class="icon-btn back-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h2 class="page-title">새 일기</h2>
+            <div class="header-spacer"></div>
+        </header>
+
+        <!-- 작성 폼 -->
+        <main class="entry-form">
+            <!-- 날짜 섹션 -->
+            <section class="date-section">
+                <div class="date-display">
+                    <div class="date-large">23</div>
+                    <div class="date-details">
+                        <div class="date-month-year">November 2024</div>
+                        <div class="date-day-name">Saturday</div>
+                    </div>
+                </div>
+                <button class="icon-btn calendar-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </button>
+            </section>
+
+            <!-- 이미지 업로드 섹션 -->
+            <section class="image-upload-section">
+                <div class="section-title">사진 추가</div>
+                <div class="image-upload-grid">
+                    <label class="image-upload-box">
+                        <input type="file" accept="image/*" style="display: none;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span>사진 추가</span>
+                    </label>
+                    <label class="image-upload-box">
+                        <input type="file" accept="image/*" style="display: none;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span>사진 추가</span>
+                    </label>
+                    <label class="image-upload-box">
+                        <input type="file" accept="image/*" style="display: none;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span>사진 추가</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 텍스트 입력 섹션 -->
+            <section class="text-input-section">
+                <div class="section-title">제목</div>
+                <input 
+                    type="text" 
+                    class="diary-title-input" 
+                    placeholder="제목을 입력하세요"
+                    maxlength="50"
+                />
+                
+                <div class="section-title" style="margin-top: var(--spacing-xl);">오늘의 이야기</div>
+                <textarea 
+                    class="diary-textarea" 
+                    placeholder="오늘 하루는 어땠나요?&#10;&#10;당신의 소중한 순간을 기록해보세요."
+                    rows="12"
+                ></textarea>
+            </section>
+
+            <!-- 감정 태그 (선택사항) -->
+            <section class="mood-section">
+                <div class="section-title">오늘의 기분</div>
+                <div class="mood-tags">
+                    <button class="mood-tag">😊 행복해요</button>
+                    <button class="mood-tag">🥰 설레요</button>
+                    <button class="mood-tag">😌 평온해요</button>
+                    <button class="mood-tag">😔 우울해요</button>
+                    <button class="mood-tag">😤 화나요</button>
+                    <button class="mood-tag">🤔 생각이 많아요</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 저장 버튼 (하단 고정) -->
+        <div class="bottom-action">
+            <button class="btn-primary btn-save">저장하기</button>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeBridge - 나의 일기</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+    <script src="home.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <div class="header-top">
+                <h1 class="app-title">TimeBridge</h1>
+                <div class="header-actions">
+                    <button class="icon-btn view-toggle-btn" title="보기 형태">
+                        <svg class="view-icon view-icon-card" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                        </svg>
+                        <svg class="view-icon view-icon-list" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </button>
+                    <button class="icon-btn filter-btn" title="필터">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                    </button>
+                    <button class="icon-btn search-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="filter-chips">
+                <!-- 활성화된 필터 칩들이 여기에 표시됨 -->
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- 일기 카드들이 여기에 동적으로 생성됩니다 -->
+        </main>
+
+        <!-- FAB 버튼 (새 일기 작성) -->
+        <a href="new_entry.html" class="fab">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </a>
+    </div>
+
+    <!-- 필터 바텀시트 -->
+    <div class="bottom-sheet" id="filterSheet" style="display: none;">
+        <div class="bottom-sheet-overlay"></div>
+        <div class="bottom-sheet-content">
+            <div class="bottom-sheet-header">
+                <h3 class="bottom-sheet-title">필터</h3>
+                <button class="bottom-sheet-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="filter-section">
+                <h4 class="filter-section-title">년도</h4>
+                <div class="filter-year-list">
+                    <!-- JavaScript로 동적 생성 -->
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4 class="filter-section-title">최저 기온</h4>
+                <div class="filter-temp-range">
+                    <div class="temp-range-values">
+                        <span class="temp-value" id="minTempValue">-20°C</span>
+                        <span class="temp-separator">~</span>
+                        <span class="temp-value" id="maxMinTempValue">40°C</span>
+                    </div>
+                    <div class="range-slider-container">
+                        <input type="range" class="range-slider" id="minTempMin" min="-20" max="40" value="-20" step="1">
+                        <input type="range" class="range-slider" id="minTempMax" min="-20" max="40" value="40" step="1">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4 class="filter-section-title">최고 기온</h4>
+                <div class="filter-temp-range">
+                    <div class="temp-range-values">
+                        <span class="temp-value" id="maxTempValue">-20°C</span>
+                        <span class="temp-separator">~</span>
+                        <span class="temp-value" id="maxMaxTempValue">40°C</span>
+                    </div>
+                    <div class="range-slider-container">
+                        <input type="range" class="range-slider" id="maxTempMin" min="-20" max="40" value="-20" step="1">
+                        <input type="range" class="range-slider" id="maxTempMax" min="-20" max="40" value="40" step="1">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bottom-sheet-actions">
+                <button class="btn-secondary" id="resetFilters">초기화</button>
+                <button class="btn-primary" id="applyFilters">적용</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
